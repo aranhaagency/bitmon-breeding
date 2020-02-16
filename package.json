@@ -1,0 +1,30 @@
+{
+  "name": "bitmon-breeding",
+  "version": "1.0.0",
+  "description": "Bitmon breeding algorithm solidity contract",
+  "repository": "https://github.com/bitmon-world/bitmon-breeding.git",
+  "author": "Enrique <eabz@polispay.org>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@truffle/hdwallet-provider": "1.0.31",
+    "babel-polyfill": "6.26.0",
+    "babel-register": "6.26.0",
+    "dotenv": "8.2.0",
+    "truffle-export-abi": "1.0.1"
+  },
+  "devDependencies": {
+    "truffle": "^5.1.13"
+  },
+  "scripts": {
+    "compile": "truffle compile",
+    "export": "yarn run compile && truffle-export-abi",
+    "deploy:ganache": "truffle migrate --network ganache",
+    "deploy:mainnet": "truffle migrate --network mainnet",
+    "deploy:ropsten": "truffle migrate --network ropsten",
+    "console:ganache": "truffle console --network ganache",
+    "console:mainnet": "truffle console --network mainnet",
+    "console:ropsten": "truffle console --network ropsten",
+    "test": "truffle test"
+  }
+}
