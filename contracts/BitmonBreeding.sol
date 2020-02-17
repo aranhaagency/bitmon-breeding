@@ -8,70 +8,10 @@ pragma solidity ^0.6.0;
 
 
 
-contract BitmonOwnership  {
+contract BitmonOwnership is BitmonBase {
     string public constant name = "BitmonBreeding";
     string public constant symbol = "BMB";
 
-
-    /*** DATA TYPES ***/
-
-    ///  @dev The main Bitmon struct. Every bitmoin in BitmonBreeding is represented by a copy
-    ///  of this structure, so great care was taken to ensure that it fits neatly into
-    ///  exactly two 256-bit words. Note that the order of the members in this structure
-    ///  is important because of the byte-packing rules used by Ethereum.
-    ///  Ref: http://solidity.readthedocs.io/en/develop/miscellaneous.html
-    struct Bitmon {
-        // The Bitmon's genetic code genetic code is packed into these 256-bits, the format is
-        // sooper-sekret! A Bitmon's genes never change.
-        uint256 genes;
-        
-        // Unique ID to identify this Bitmon
-        uint256 bitmonID;
-       
-        // Father unique ID to trace parent line
-        uint256 fatherID;  
-
-        // Mother unique ID to trace parent line
-        uint256 motherID; 
-        
-        // Gender definition (female 1 or male 0)
-        uint8 gender; 
-        
-        // Characteristics of the behaviour (between 1 to 30)
-        uint8 nature; 
-
-        // Specie identifier
-        uint16 pecimen; 
-
-        // Speciment purity (Between 0 and 100)
-        uint8 purity; 
-        
-        // BlockHeight of the network at Bitmon born.
-        uint256 birthHeight;
-
-        // Color variants (0 for normal, 1 for special, 2 for ugly)
-        uint8 variant;
-
-        // The "generation number" of this Bitmon. 
-        uint16 generation;
-
-        // Power and Helth
-        // Health
-        uint8 h; 
-
-        // Attack
-        uint8 a;
-        
-        // Special attack
-        uint8 sa;
-
-        // Defense 
-        uint8 d; 
-
-        // Special defense
-        uint8 sd; 
-
-    }
 }
 
 
@@ -80,4 +20,52 @@ contract BitmonOwnership  {
 /// @dev See the BitmonCore contract documentation
 contract BitmonBreeding is BitmonOwnership {
 
+    /// @dev The Pregnant event is fired when two bitmon successfully breed and the pregnancy
+    ///
+    event Pregnant(address owner, uint256 fatherID, uint256 motherID):
+
+    /// @notice The minimum payment required to use breedWithAuto(). This fee goes towards
+    ///  the gas cost paid by whatever calls giveBirth(), and can be dynamically updated by
+    ///  the COO role as the gas price changes.
+    uint256 public autoBirthFee = 2 finney;
+
+    // Keeps track of number of pregnant Bitmon.
+    uint256 public pregnantBitmon;
+
+    /// @dev The address of the sibling contract that is used to implement the sooper-sekret
+    ///  genetic combination algorithm.
+    GeneScienceInterface public geneScience;
+
+    /// @dev Update the address of the genetic contract, can only be called by the CEO.
+    /// @param _address An address of a GeneScience contract instance to be used from this point forward.
+    function setGeneScienceAddress(address _address) external onlyCEO {
+        GeneScienceInterface candidateContract = GeneScienceInterface(_address);
+
+        // NOTE: verify that a contract is what we expect - https://github.com/Lunyr/crowdsale-contracts/blob/cfadd15986c30521d8ba7d5b6f57b4fefcc7ac38/contracts/LunyrToken.sol#L117
+        require(candidateContract.isGeneScience());
+
+        // Set the new contract address
+        geneScience = candidateContract;
+    }
+
+
+    /// @dev Updates the minimum payment required for calling giveBirthAuto(). Can only
+    ///  be called by the COO address. (This fee is used to offset the gas cost incurred
+    ///  by the autobirth daemon).
+    function setAutoBirthFee(uint256 val) external onlyCOO {
+        autoBirthFee = val;
+    }
+}
+
+
+/// @title SEKRETOOOO
+contract GeneScienceInterface {
+    /// @dev simply a boolean to indicate this is the contract we expect to be
+    function isGeneScience() public pure returns (bool);
+
+    /// @dev given genes of Bitmon 1 & 2, return a genetic combination - may have a random factor
+    /// @param genes1 genes of Mother
+    /// @param genes2 genes of Father
+    /// @return the genes that are supposed to be passed down the child
+    function mixGenes(uint256 genes1, uint256 genes2, uint256 targetBlock) public returns (uint256);
 }
